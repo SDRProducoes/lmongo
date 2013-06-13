@@ -1790,7 +1790,7 @@ class Builder {
 		{
 			return array_map(function($document)
 			{
-			    return $document['_id'];
+				return $document['_id'];
 			}, $data);
 		}
 
@@ -1821,9 +1821,9 @@ class Builder {
 	 * @param  array  $data
 	 * @return int
 	 */
-	public function update(array $data)
+	public function update(array $data, $operator = '$set')
 	{
-		$update = array('$set' => $data);
+		$update = array($operator => $data);
 
 		$result = $this->connection->{$this->collection}->update($this->compileWheres($this), $update, array('multiple' => true));
 
@@ -1979,9 +1979,13 @@ class Builder {
 	{
 		$columns = array();
 
-		foreach ($this->columns as $column)
+		foreach ($this->columns as $key => $column)
 		{
-			$columns[$column] = 1;
+			if (is_array($column)) {
+				$columns[$key] = $column;
+			} else {
+				$columns[$column] = 1;
+			}
 		}
 
 		if(count($columns) AND ! isset($columns['_id']))
