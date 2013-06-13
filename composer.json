@@ -29,11 +29,5 @@
     "autoload": {
         "psr-0": { "LMongo": "src/" }
     },
-    "minimum-stability": "dev",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git://github.com/SDRProducoes/lmongo"
-        }
-    ]
+    "minimum-stability": "dev"
 }
