@@ -33,7 +33,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/SDRProducoes/lmongo"
+            "url": "git://github.com/SDRProducoes/lmongo"
         }
     ]
 }
