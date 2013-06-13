@@ -20,10 +20,20 @@
         {
             "name": "Mustafa Navruz",
             "email": "mustafanavruz@gmail.com"
+        },
+        {
+            "name": "Guilherme Pacheco",
+            "email": "guipacheco2@gmail.com"
         }
     ],
     "autoload": {
         "psr-0": { "LMongo": "src/" }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/SDRProducoes/lmongo"
+        }
+    ]
 }
