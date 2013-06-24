@@ -1505,6 +1505,22 @@ class Builder {
 	}
 
 	/**
+	 * Concatenate values of a given column as a string.
+	 *
+	 * @param  string  $column
+	 * @param  string  $glue
+	 * @return string
+	 */
+	public function implode($column, $glue = null)
+	{
+		$values = $this->distinct($column);
+
+		if (is_null($glue)) return implode($values);
+
+		return implode($glue, $values);
+	}
+
+	/**
 	 * Indicate that the query results should be cached.
 	 *
 	 * @param  int  $minutes
@@ -1816,6 +1832,24 @@ class Builder {
 	}
 
 	/**
+	 * Perform update.
+	 *
+	 * @param  array  $query
+	 * @return int
+	 */
+	protected function performUpdate(array $query)
+	{
+		$result = $this->connection->{$this->collection}->update($this->compileWheres($this), $query, array('multiple' => true));
+
+		if(1 == (int) $result['ok'])
+		{
+			return $result['n'];
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Update a document in the database.
 	 *
 	 * @param  array  $data
@@ -1825,14 +1859,69 @@ class Builder {
 	{
 		$update = array($operator => $data);
 
-		$result = $this->connection->{$this->collection}->update($this->compileWheres($this), $update, array('multiple' => true));
+		return $this->performUpdate($update);
+	}
 
-		if(1 == (int) $result['ok'])
+	/**
+	 * Set the values for the keys.
+	 *
+	 * @param  mixed  $column
+	 * @param  mixed  $value
+	 * @return int
+	 */
+	public function setField($column, $value = null)
+	{
+		if(is_array($column))
 		{
-			return $result['n'];
+			$update = array('$set' => $column);
+		}
+		else
+		{
+			$update = array('$set' => array($column => $value));
 		}
 
-		return 0;
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Unset or remove the given keys.
+	 *
+	 * @param  mixed  $column
+	 * @return int
+	 */
+	public function unsetField($column)
+	{
+		$columns = array();
+
+		foreach ((array) $column as $key)
+		{
+			$columns[$key] = true;
+		}
+
+		$update = array('$unset' => $columns);
+
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Renames a field.
+	 *
+	 * @param  mixed  $old
+	 * @param  mixed  $new
+	 * @return int
+	 */
+	public function renameField($old, $new = null)
+	{
+		if(is_array($old))
+		{
+			$update = array('$rename' => $old);
+		}
+		else
+		{
+			$update = array('$rename' => array($old => $new));
+		}
+
+		return $this->performUpdate($update);
 	}
 
 	/**
@@ -1852,14 +1941,7 @@ class Builder {
 			$update['$set'] = $extra;
 		}
 
-		$result = $this->connection->{$this->collection}->update($this->compileWheres($this), $update, array('multiple' => true));
-
-		if(1 == (int) $result['ok'])
-		{
-			return $result['n'];
-		}
-
-		return 0;
+		return $this->performUpdate($update);
 	}
 
 	/**
@@ -1879,14 +1961,119 @@ class Builder {
 			$update['$set'] = $extra;
 		}
 
-		$result = $this->connection->{$this->collection}->update($this->compileWheres($this), $update, array('multiple' => true));
+		return $this->performUpdate($update);
+	}
 
-		if(1 == (int) $result['ok'])
+	/**
+	 * Append one value to the array key.
+	 *
+	 * @param  string  $column
+	 * @param  mixed   $value
+	 * @return int
+	 */
+	public function push($column, $value = null)
+	{
+		if(is_array($column))
 		{
-			return $result['n'];
+			$update = array('$push' => $column);
+		}
+		else
+		{
+			$update = array('$push' => array($column => $value));
 		}
 
-		return 0;
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Append several value to the array key.
+	 *
+	 * @param  string  $column
+	 * @param  mixed   $values
+	 * @return int
+	 */
+	public function pushAll($column, array $values)
+	{
+		$update = array('$push' => array($column => array('$each' => $values)));
+
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Append one unique value to the array key.
+	 *
+	 * @param  string  $column
+	 * @param  mixed   $value
+	 * @return int
+	 */
+	public function addToSet($column, $value = null)
+	{
+		if(is_array($column))
+		{
+			$update = array('$addToSet' => $column);
+		}
+		else
+		{
+			$update = array('$addToSet' => array($column => $value));
+		}
+
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Remove one value from the array key.
+	 *
+	 * @param  string  $column
+	 * @param  mixed   $value
+	 * @return int
+	 */
+	public function pull($column, $value = null)
+	{
+		if(is_array($column))
+		{
+			$update = array('$pull' => $column);
+		}
+		else
+		{
+			$update = array('$pull' => array($column => $value));
+		}
+
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Remove several value from the array key.
+	 *
+	 * @param  string  $column
+	 * @param  mixed   $value
+	 * @return int
+	 */
+	public function pullAll($column, $value = null)
+	{
+		if(is_array($column))
+		{
+			$update = array('$pullAll' => $column);
+		}
+		else
+		{
+			$update = array('$pullAll' => array($column => $value));
+		}
+
+		return $this->performUpdate($update);
+	}
+
+	/**
+	 * Remove the last element from the array key.
+	 *
+	 * @param  string  $column
+	 * @param  int     $type
+	 * @return int
+	 */
+	public function pop($column, $type = 1)
+	{
+		$update = array('$pop' => array($column => $type));
+
+		return $this->performUpdate($update);
 	}
 
 	/**

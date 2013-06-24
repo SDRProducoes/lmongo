@@ -16,7 +16,7 @@ class LMongoEloquentRelationTest extends PHPUnit_Framework_TestCase {
 		// For this test it doesn't matter what type of relationship we have, so we'll just use HasOne
 		$builder = new LMongoRelationResetStub;
 		$parent = m::mock('LMongo\Eloquent\Model');
-		$parent->shouldReceive('getKey')->andReturn(1);
+		$parent->shouldReceive('getKey')->andReturn('500000000000000000000000');
 		$relation = new HasOne($builder, $parent, 'foreign_key');
 		$relation->where('foo', 'bar');
 		$wheres = $relation->getAndResetWheres();
@@ -29,12 +29,13 @@ class LMongoEloquentRelationTest extends PHPUnit_Framework_TestCase {
 	{
 		$builder = m::mock('LMongo\Eloquent\Builder');
 		$parent = m::mock('LMongo\Eloquent\Model');
-		$parent->shouldReceive('getKey')->andReturn(1);
+		$parent->shouldReceive('getKey')->andReturn('500000000000000000000000');
 		$builder->shouldReceive('getModel')->andReturn($related = m::mock('StdClass'));
 		$builder->shouldReceive('where');
 		$relation = new HasOne($builder, $parent, 'foreign_key');
 		$related->shouldReceive('getCollection')->andReturn('collection');
 		$related->shouldReceive('getUpdatedAtColumn')->andReturn('updated_at');
+		$related->shouldReceive('freshTimestamp')->andReturn(new MongoDate);
 		$builder->shouldReceive('update')->once()->with(array('updated_at' => new MongoDate));
 
 		$relation->touch();

@@ -17,9 +17,9 @@ class LMongoEloquentBelongsToManyTest extends PHPUnit_Framework_TestCase {
 		$created = $this->getMock('LMongo\Eloquent\Model', array('save', 'getKey'));
 		$created->expects($this->any())->method('save')->will($this->returnValue(true));
 		$relation->getRelated()->shouldReceive('newInstance')->once()->andReturn($created);
-		$relation->getParent()->shouldReceive('getAttribute')->once()->andReturn(1);
-		$relation->getParent()->shouldReceive('setAttribute')->once()->andReturn(1);
-		$relation->getParent()->shouldReceive('save')->once()->andReturn(1);
+		$relation->getParent()->shouldReceive('getAttribute')->once()->andReturn('500000000000000000000000');
+		$relation->getParent()->shouldReceive('setAttribute')->once()->andReturn('500000000000000000000000');
+		$relation->getParent()->shouldReceive('save')->once()->andReturn('500000000000000000000000');
 
 		$this->assertEquals($created, $relation->create(array('name' => 'taylor')));
 	}
@@ -29,6 +29,7 @@ class LMongoEloquentBelongsToManyTest extends PHPUnit_Framework_TestCase {
 		$relation = $this->getRelation();
 		$relation->getRelated()->shouldReceive('usesTimestamps')->once()->andReturn(true);
 		$relation->getRelated()->shouldReceive('freshTimestamp')->once()->andReturn(100);
+		$relation->getRelated()->shouldReceive('getUpdatedAtColumn')->andReturn('updated_at');
 		$relation->getQuery()->shouldReceive('update')->once()->with(array('foo' => 'bar', 'updated_at' => 100))->andReturn('results');
 
 		$this->assertEquals('results', $relation->update(array('foo' => 'bar')));
