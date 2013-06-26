@@ -1933,6 +1933,12 @@ abstract class Model implements ArrayAccess, ArrayableInterface, JsonableInterfa
 			//
 		}
 
+		// If already MongoDate, return it.
+		elseif ($value instanceof MongoDate)
+		{
+			return $value;
+		}
+
 		// If the value is totally numeric, we will assume it is a UNIX timestamp and
 		// format the date as such. Once we have the date in DateTime form we will
 		// format it according to the proper format for the database connection.
